@@ -9,6 +9,7 @@ Use cWebMenuItem.pkg
 Use cWebForm.pkg
 
 Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
 
 Object oZoomLiga is a cWebView
     Set piColumnCount to 12
@@ -20,7 +21,12 @@ Object oZoomLiga is a cWebView
     Set piMaxWidth to 1024
 
     Object oliga_DD is a cligaDataDictionary
-    End_Object 
+    End_Object
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server to oliga_DD
+        Set Constrain_File to liga.File_Number
+    End_Object
 
     Set Main_DD To oliga_DD
     Set Server  To oliga_DD
@@ -60,8 +66,63 @@ Object oZoomLiga is a cWebView
             Set piColumnIndex to 9
             Set peLabelPosition to lpTop
             Set psLabel to "Equipos máximos"
-        End_Object 
-    End_Object 
+        End_Object
+
+        Object oEquiposLigaButton is a cWebButton
+            Set piColumnSpan to 2
+            Set psCaption to "Equipos liga"
+            Set piColumnIndex to 7
+        
+            WebRegisterPath ntNavigateForward oSelectEquipo
+
+            Procedure OnClick
+                Send NavigatePath
+            End_Procedure           
+        End_Object
+
+    End_Object
+
+    Object oWebPanelEquipos is a cWebPanel
+        Set peRegion to prBottom
+        Set piColumnCount to 12
+        Set pbVisible to True
+        
+        Set Server to oequipo_DD
+                  
+        Object oWebListEquipos is a cWebList          
+            Set piColumnSpan to 7
+            Set psCSSClass to "Lista de los equipos de la liga"
+            Set pbServerOnRowClick to True       
+            Set pbShowHeader to True
+            Set piSortColumn to 0
+            Set pbVisible to True
+
+                Object oequipoNombre is a cWebColumn
+                    Entry_Item equipo.Nombre
+                    Set psCaption to "Nombre del equipo"
+                    Set piWidth to 207
+                    Set peAlign to alignLeft
+                End_Object 
+          
+                Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject 
+                    Case Begin
+                    Case (NavigateData.eNavigateType = nfFromParent)
+                        // If from parent, this is a constrained drill down
+                        Case Break
+                    Case (NavigateData.eNavigateType = nfFromChild)
+                        // If from child, this is a probably a parent lookup from a Zoom
+                        Case Break
+                    Case (NavigateData.eNavigateType = nfFromMain)
+                        // If from main, this is a probably a main-file lookup from a Zoom               
+                        Case Break
+                    Case Else // must be nfUndefined
+                        // This may be the start of a drilldown query or this may be used for some kind of custom query.
+                    Case End
+                End_Procedure   
+
+        End_Object
+      
+    End_Object
 
     Object oActionGroup is a cWebMenuGroup
 
