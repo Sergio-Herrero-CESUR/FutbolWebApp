@@ -12,6 +12,7 @@ Class cjugadorDataDictionary is a DataDictionary
         Set Main_File to jugador.File_Number
 
         Set Add_Server_File to equipo.File_Number
+        Set ParentNullAllowed equipo.File_Number to True
 
         Set Add_Client_File to hijojugador.File_Number
         Set Add_Client_File to jugadorposicion.File_Number
@@ -21,6 +22,13 @@ Class cjugadorDataDictionary is a DataDictionary
         Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
 
+    End_Procedure
+    
+    Procedure Attach_Main_File
+        Forward Send Attach_Main_File
+        
+        If (jugador.EquipoID = 0);
+            Set_Attribute DF_FIELD_IS_NULL of jugador.File_Number (RefTable(jugador.EquipoID)) to True
     End_Procedure
 
 End_Class

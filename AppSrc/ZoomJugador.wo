@@ -1,5 +1,4 @@
-﻿// C:\DataFlex Projects\FutbolWebApp\AppSrc\ZoomJugador.wo
-// ZoomJugador
+﻿// ZoomJugador
 //
 
 Use cWebView.pkg
@@ -25,39 +24,26 @@ Object oZoomJugador is a cWebView
     End_Object 
 
     Object oequipo_DD is a cequipoDataDictionary
-        Set DDO_Server To oliga_DD
+        Set DDO_Server to oliga_DD
     End_Object 
 
     Object ojugador_DD is a cjugadorDataDictionary
-        Set DDO_Server To oequipo_DD
+        Set DDO_Server to oequipo_DD
     End_Object 
 
-    Set Main_DD To ojugador_DD
-    Set Server  To ojugador_DD
+    Set Main_DD to ojugador_DD
+    Set Server  to ojugador_DD
 
 
     Object oWebMainPanel is a cWebPanel
         Set piColumnCount to 12
 
-        Object oequipoNombre is a cWebForm
-            Entry_Item equipo.Nombre
-            Set piColumnSpan to 12
-            Set piColumnIndex to 0
-            Set peLabelPosition to lpTop
-            Set psLabel to "Equipo"
-            Set pbPromptButton to True
-
-            WebRegisterPath ntNavigateForward oSelectView
-
-            Procedure OnPrompt
-                Send NavigatePath
-            End_Procedure
-        End_Object 
+        // C:\DataFlex Projects\FutbolWebApp\AppSrc\ZoomJugador.wo
         WebSetResponsive piColumnCount rmMobile to 4
 
         Object ojugadorNombre is a cWebForm
             Entry_Item jugador.Nombre
-            Set piColumnSpan to 10
+            Set piColumnSpan to 4
             Set piColumnIndex to 0
             Set peLabelPosition to lpTop
             Set psLabel to "Nombre"
@@ -65,23 +51,51 @@ Object oZoomJugador is a cWebView
 
         Object ojugadorApellido is a cWebForm
             Entry_Item jugador.Apellido
-            Set piColumnSpan to 10
-            Set piColumnIndex to 0
+            Set piColumnSpan to 4
+            Set piColumnIndex to 4
             Set peLabelPosition to lpTop
             Set psLabel to "Apellido"
         End_Object 
 
+        Object oequipoNombre is a cWebForm
+            Entry_Item equipo.Nombre
+            Set piColumnSpan to 4
+            Set piColumnIndex to 0
+            Set peLabelPosition to lpTop
+            Set psLabel to "Equipo"
+            Set pbPromptButton to True
+
+            WebRegisterPath ntNavigateForward oSelectEquipo
+
+            Procedure OnPrompt
+                Send NavigatePath
+            End_Procedure
+
+        End_Object 
+
         Object ojugadorNacionalidad is a cWebForm
             Entry_Item jugador.Nacionalidad
-            Set piColumnSpan to 8
-            Set piColumnIndex to 0
+            Set piColumnSpan to 4
+            Set piColumnIndex to 4
             Set peLabelPosition to lpTop
             Set psLabel to "Nacionalidad"
         End_Object
 
+        Object oButtonFire is a cWebButton
+            Set piColumnSpan to 4
+            Set piColumnIndex to 0
+            Set psCaption to "Despedir"
+            Procedure onClick
+                Forward Send OnClick
+                Send Request_ClearBindingTable of oequipoNombre
+            End_Procedure
+            
+        End_Object
+
         Object oPosicionButton is a cWebButton
-            Set piColumnSpan to 6
+            Set piColumnSpan to 4
             Set psCaption to "Posición"
+            Set piColumnIndex to 4
             
             WebRegisterPath ntNavigateForwardCustom oSelectPosicion
             
@@ -89,7 +103,7 @@ Object oZoomJugador is a cWebView
                 Send NavigatePath
             End_Procedure
         End_Object
-
+        
     End_Object 
 
     Object oActionGroup is a cWebMenuGroup
@@ -100,6 +114,42 @@ Object oZoomJugador is a cWebView
 
             Procedure OnClick
                 Send Request_Save
+            End_Procedure
+
+            Procedure AllowServerAction Boolean  ByRef bAllow String sMethodName Handle hoMessage Boolean bIsFunction
+                Forward Send AllowServerAction (&bAllow) sMethodName hoMessage bIsFunction
+            End_Procedure
+
+            Procedure Destroy_Object
+                Forward Send Destroy_Object
+            End_Procedure
+
+            Procedure OnCallEnd
+                Forward Send OnCallEnd
+            End_Procedure
+
+            Procedure OnChangeRights
+                Forward Send OnChangeRights
+            End_Procedure
+
+            Procedure OnCloseModalDialog Handle hoModalDialog
+                Forward Send OnCloseModalDialog hoModalDialog
+            End_Procedure
+
+            Procedure OnGetNavigateBackData tWebNavigateData  ByRef NavigateData Handle hoBackToView
+                Forward Send OnGetNavigateBackData (&NavigateData) hoBackToView
+            End_Procedure
+
+            Procedure OnGetNavigateForwardData tWebNavigateData  ByRef NavigateData Handle hoToView
+                Forward Send OnGetNavigateForwardData (&NavigateData) hoToView
+            End_Procedure
+
+            Procedure OnLoad
+                Forward Send OnLoad
+            End_Procedure
+
+            Procedure OnNavigateBack Handle hoCallback tWebNavigateData NavigateData
+                Forward Send OnNavigateBack hoCallback NavigateData
             End_Procedure
 
         End_Object 

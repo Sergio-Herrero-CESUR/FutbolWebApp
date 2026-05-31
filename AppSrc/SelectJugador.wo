@@ -76,6 +76,85 @@ Object oSelectJugador is a cWebView
                 Move True to NavigateData.bReadOnly
             End_Procedure
 
+            Procedure AllowFillDEO Boolean  ByRef bAllow
+                Forward Send AllowFillDEO (&bAllow)
+            End_Procedure
+
+            Procedure AllowServerAction Boolean  ByRef bAllow String sMethodName Handle hoMessage Boolean bIsFunction
+                Forward Send AllowServerAction (&bAllow) sMethodName hoMessage bIsFunction
+            End_Procedure
+
+            Procedure AllowUpdateDD Boolean  ByRef bAllow
+                Forward Send AllowUpdateDD (&bAllow)
+            End_Procedure
+
+            Procedure Destroy_Object
+                Forward Send Destroy_Object
+            End_Procedure
+
+            Procedure OnAutoFind
+                Forward Send OnAutoFind
+            End_Procedure
+
+            Procedure OnBlur
+                Forward Send OnBlur
+            End_Procedure
+
+            Procedure OnCallEnd
+                Forward Send OnCallEnd
+            End_Procedure
+
+            Procedure OnChange String sNewValue String sOldValue
+                Forward Send OnChange sNewValue sOldValue
+            End_Procedure
+
+            Procedure OnCloseModalDialog Handle hoModalDialog
+                Forward Send OnCloseModalDialog hoModalDialog
+            End_Procedure
+
+            Procedure OnDefineButtons
+                Forward Send OnDefineButtons
+            End_Procedure
+
+            Procedure OnFocus
+                Forward Send OnFocus
+            End_Procedure
+
+            Procedure OnGetNavigateBackData tWebNavigateData  ByRef NavigateData Handle hoBackToView
+                Forward Send OnGetNavigateBackData (&NavigateData) hoBackToView
+            End_Procedure
+
+            Procedure OnHeaderClick
+                Forward Send OnHeaderClick
+            End_Procedure
+
+            Procedure OnLoad
+                Forward Send OnLoad
+            End_Procedure
+
+            Procedure OnNavigateBack Handle hoCallback tWebNavigateData NavigateData
+                Forward Send OnNavigateBack hoCallback NavigateData
+            End_Procedure
+
+            Procedure OnSetCalculatedValue String  ByRef sValue
+                Forward Send OnSetCalculatedValue (&sValue)
+            End_Procedure
+
+            Function OnValidate Returns Boolean
+                Boolean bRetVal
+                Forward Get OnValidate to bRetVal
+                
+                Function_Return bRetVal
+            End_Function
+
+            Procedure Prompt_Callback Handle hoPrompt
+                Forward Send Prompt_Callback hoPrompt
+            End_Procedure
+
+            Procedure Refresh Integer eMode
+                Forward Send Refresh eMode
+            End_Procedure
+
         End_Object 
 
         Object ojugadorNacionalidad is a cWebColumn
@@ -149,10 +228,6 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
                 Send NavigatePath
             End_Procedure
 
-            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
-                Move True to NavigateData.bNewRecord
-            End_Procedure
-
         End_Object 
     End_Object 
 
@@ -179,6 +254,121 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
 
         Case End
 
+    End_Procedure
+
+    Function AllowAccess Returns Boolean
+        Boolean bRetVal
+        Forward Get AllowAccess to bRetVal
+        
+        Function_Return bRetVal
+    End_Function
+
+    Procedure AllowServerAction Boolean  ByRef bAllow String sMethodName Handle hoMessage Boolean bIsFunction
+        Forward Send AllowServerAction (&bAllow) sMethodName hoMessage bIsFunction
+    End_Procedure
+
+    Procedure Destroy_Object
+        Forward Send Destroy_Object
+    End_Procedure
+
+    Procedure OnBeforeShow
+        Forward Send OnBeforeShow
+    End_Procedure
+
+    Procedure OnCallEnd
+        Forward Send OnCallEnd
+    End_Procedure
+
+    Procedure OnCloseModalDialog Handle hoModalDialog
+        Forward Send OnCloseModalDialog hoModalDialog
+    End_Procedure
+
+    Procedure OnCustomizeWebViewStyle
+        Forward Send OnCustomizeWebViewStyle
+    End_Procedure
+
+    Procedure OnDefineCustomStateHash String  ByRef sStateHash
+        Forward Send OnDefineCustomStateHash (&sStateHash)
+    End_Procedure
+
+    Procedure OnGetNavigateBackData tWebNavigateData  ByRef NavigateData Handle hoBackToView
+        Forward Send OnGetNavigateBackData (&NavigateData) hoBackToView
+    End_Procedure
+
+    Procedure OnGetNavigateForwardData tWebNavigateData  ByRef NavigateData Handle hoToView
+        Forward Send OnGetNavigateForwardData (&NavigateData) hoToView
+    End_Procedure
+
+    Procedure OnHide
+        Forward Send OnHide
+    End_Procedure
+
+    Procedure OnLoad
+        Forward Send OnLoad
+    End_Procedure
+
+    Procedure OnNavigateBack Handle hoCallback tWebNavigateData NavigateData
+        Forward Send OnNavigateBack hoCallback NavigateData
+    End_Procedure
+
+    Procedure OnNavigateBackRefindError Handle hoDD Integer eReason
+        Forward Send OnNavigateBackRefindError hoDD eReason
+    End_Procedure
+
+    Procedure OnNavigateForwardPreFindInit tWebNavigateData NavigateData Handle hoInvokingObject
+        Forward Send OnNavigateForwardPreFindInit NavigateData hoInvokingObject
+    End_Procedure
+
+    Procedure OnNavigateForwardRefindError Handle hoDD Integer eReason
+        Forward Send OnNavigateForwardRefindError hoDD eReason
+    End_Procedure
+
+    Procedure OnNavigating tWebNavigateData  ByRef NavigateData Handle hoInvokingView Handle hoInvokingObject Boolean  ByRef bCancel
+        Forward Send OnNavigating (&NavigateData) hoInvokingView hoInvokingObject (&bCancel)
+    End_Procedure
+
+    Procedure OnRefindRecordError Handle hoDD Integer eOperation Integer eReason
+        Forward Send OnRefindRecordError hoDD eOperation eReason
+    End_Procedure
+
+    Procedure OnRefreshRecordError Handle hoDD
+        Forward Send OnRefreshRecordError hoDD
+    End_Procedure
+
+    Procedure OnResizeWindow Integer iWindowWidth Integer iWindowHeight
+        Forward Send OnResizeWindow iWindowWidth iWindowHeight
+    End_Procedure
+
+    Procedure OnShow
+        Forward Send OnShow
+    End_Procedure
+
+    Procedure OnSubmit
+        Forward Send OnSubmit
+    End_Procedure
+
+    Procedure OnSyncDDOsRefindError Handle hoDD
+        Forward Send OnSyncDDOsRefindError hoDD
+    End_Procedure
+
+    Procedure OnSyncView
+        Forward Send OnSyncView
+    End_Procedure
+
+    Procedure OnViewCleared Handle hoDDO
+        Forward Send OnViewCleared hoDDO
+    End_Procedure
+
+    Procedure OnViewDeleted Handle hoDDO
+        Forward Send OnViewDeleted hoDDO
+    End_Procedure
+
+    Procedure OnViewSaved Handle hoDDO Boolean bChanged
+        Forward Send OnViewSaved hoDDO bChanged
+    End_Procedure
+
+    Procedure Refresh Integer eMode
+        Forward Send Refresh eMode
     End_Procedure
 
 

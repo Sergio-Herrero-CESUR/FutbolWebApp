@@ -13,10 +13,10 @@ Use cequipoDataDictionary.dd
 
 Object oZoomEquipo is a cWebView
     Set piColumnCount to 12
-    Set psCaption to "Equipo"
+    Set psCaption to "Zoom Equipo"
     Set peWebViewStyle to wvsDrilldown
     Set peViewType to vtZoom
-    Set pbShowCaption to False
+    Set pbShowCaption to True
     Set Verify_Save_Msg to 0
     Set piMaxWidth to 1024
 
@@ -24,31 +24,23 @@ Object oZoomEquipo is a cWebView
     End_Object 
 
     Object oequipo_DD is a cequipoDataDictionary
-        Set DDO_Server To oliga_DD
+        Set DDO_Server to oliga_DD
     End_Object 
 
-    Set Main_DD To oequipo_DD
-    Set Server  To oequipo_DD
+    Set Main_DD to oequipo_DD
+    Set Server  to oequipo_DD
 
 
     Object oWebMainPanel is a cWebPanel
         Set piColumnCount to 12
         WebSetResponsive piColumnCount rmMobile to 4
 
-        Object oligaNombre is a cWebForm
-            Entry_Item liga.Nombre
-            Set piColumnSpan to 12
+        Object oequipoID is a cWebForm
+            Entry_Item equipo.ID
+            Set piColumnSpan to 2
             Set piColumnIndex to 0
             Set peLabelPosition to lpTop
-            Set psLabel to "Nombre de la liga"
-            Set pbPromptButton to True
-
-// ToDo: Fill in the from-child parent Select view object name for navigate forward
-//            WebRegisterPath ntNavigateForward oSelectView
-
-            Procedure OnPrompt
-                Send NavigatePath
-            End_Procedure
+            Set psLabel to "ID"
         End_Object 
 
         Object oequipoNombre is a cWebForm
@@ -56,7 +48,22 @@ Object oZoomEquipo is a cWebView
             Set piColumnSpan to 12
             Set piColumnIndex to 0
             Set peLabelPosition to lpTop
-            Set psLabel to "Nombre del equipo"
+            Set psLabel to "Nombre"
+        End_Object 
+
+        Object oligaID is a cWebForm
+            Entry_Item liga.ID
+            Set piColumnSpan to 2
+            Set piColumnIndex to 0
+            Set peLabelPosition to lpTop
+            Set psLabel to "LigaID"
+            Set pbPromptButton to True
+
+            WebRegisterPath ntNavigateForward oSelectLiga
+
+            Procedure OnPrompt
+                Send NavigatePath
+            End_Procedure
         End_Object 
     End_Object 
 
