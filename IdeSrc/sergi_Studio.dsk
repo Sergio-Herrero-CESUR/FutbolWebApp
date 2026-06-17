@@ -7,15 +7,37 @@ GroupCount=1
 HorizontalGroups=1
 [TabGroup0]
 GroupSize=40
-SelectedTab=0
+SelectedTab=1
 [Window0]
 Filename=C:\DataFlex Projects\FutbolWebApp\AppSrc\SelectJugadorPosicion.wo
 ViewType=1
 Top=21
 Left=0
-Bottom=904
-Right=1939
+Bottom=596
+Right=1067
 CursorLine=170
 CursorColumn=64
 TabIndex=0
+TabGroup=0
+[Window1]
+Filename=C:\Program Files\DataFlex 25.0\Pkg\GlobalFunctionsProcedures.pkg
+ViewType=1
+Top=21
+Left=0
+Bottom=596
+Right=1067
+CursorLine=570
+CursorColumn=0
+TabIndex=2
+TabGroup=0
+[Window2]
+Filename=C:\DataFlex Projects\FutbolWebApp\AppSrc\SelectPosicion.wo
+ViewType=1
+Top=21
+Left=0
+Bottom=596
+Right=1067
+CursorLine=30
+CursorColumn=28
+TabIndex=1
 TabGroup=0

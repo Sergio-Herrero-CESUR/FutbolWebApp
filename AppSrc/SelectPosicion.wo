@@ -3,154 +3,222 @@
 //
 
 Use cWebView.pkg
-Use cWebList.pkg
-Use cWebMenuGroup.pkg
 Use cWebMenuItem.pkg
-Use cWebColumnButton.pkg
-Use cWebColumn.pkg
-Use ZoomPosicion.wo
-Use ZoomJugador.wo
-//Use ZoomJugadorPosicion.wo
-
-Use cjugadorposicionDataDictionary.dd
-Use cposicionDataDictionary.dd
+Use cWebGroup.pkg
+Use cWebDragDropFileHelper.pkg
+Use cWebFileUploadButton.pkg
 
 Object oSelectPosicion is a cWebView
     Set psCaption to "SelectPosicion"
-    Set peWebViewStyle to wvsDrilldown
+    Set peWebViewStyle to wvsDrillDown
     Set peViewType to vtSelect
     Set piColumnCount to 12
     Set pbShowCaption to False
     Set piMaxWidth to 1024
-
-    Object oposicion_DD is a cposicionDataDictionary
-    End_Object 
-
-    Set Main_DD To oposicion_DD
-    Set Server  To oposicion_DD
-
-
-    Object oList is a cWebList
-        Set piColumnSpan to 0
-        Set psCSSClass to "MobileList"
-        Set pbServerOnRowClick to True
-        Set pbFillHeight to True
-        Set pbShowHeader to False
-        Set piSortColumn to 0
-
-        Object oposicionNombre is a cWebColumn
-            Entry_Item posicion.Nombre
-            Set psCaption to "posicion.Nombre"
-            Set piWidth to 621
-        End_Object 
-
-        Object oDetailButton is a cWebColumnButton
-            Set psCaption to "Detalles"
-            Set piWidth to 45
-            Set pbFixedWidth to True
-            Set pbResizable to False
-            Set piListRowSpan to 1
-            Set psBtnCssClass to "WebButtonIcon WebIcon_Info"
-            Set peAlign to alignRight
-
-            WebRegisterPath ntNavigateForward oZoomPosicion
-
-            Procedure OnClick
-                Send NavigatePath
-            End_Procedure
-
-            Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
-                Move True to NavigateData.bReadOnly
-            End_Procedure
-
-        End_Object 
+    
+    Object oSubirFicheros is a cWebGroup
+        Set psCaption to "Files"
+        Set piColumnCount to 12
+    End_Object
+    
+    Object oSubirFicherosBlack is a cWebGroup
+        Set psCaption to "Black files"
+        Set piColumnCount to 12
+    End_Object
+    
+    Object oSubidaFicherosArrastre is a cWebDragDropFileHelper
         
-        /*Es independiente se relaciona con jugador a traves de la tabla intermedia 
-        jugadorposicion, asi que no tiene padres */
-        //WebRegisterPath ntNavigateForward oSelectview
-
-        Procedure OnRowClick String sRowId
-            tWebNavigateData NavigateData
-            Get GetNavigateData to NavigateData
-
+        // Register drop targets
+        Send RegisterDropTarget oSubirFicheros C_WebDropOnControl
+        Send RegisterDropTarget oSubirFicherosBlack C_WebDropOnControl
+        
+        // Set psAccept to ".pdf"
+        
+        // Called for each file dropped, should return the local path to write the file
+        Function OnFileDrop String sFileName Integer iBytes String sMime Handle hoDropTarget WebDropPosition eDropPosition Returns String
+            String sPath sCarpeta
+            Boolean bExist
+            
+            Forward Get OnFileDrop sFileName iBytes sMime hoDropTarget eDropPosition to sPath
+            
+            If (hoDropTarget = oSubirFicheros) Begin
+                Move "aBlanco" to sCarpeta
+            End
+            Else Begin
+                Move "aNegro" to sCarpeta
+            End
+            
+            Get ObtainPath sCarpeta to sPath
+            
+            Move (sPath + "\" + sFileName) to sPath
+            
+            //Check if we are not overwriting an existing file
+            File_Exist sPath bExist
+            //Existe
             Case Begin
-                Case (NavigateData.eNavigateType = nfFromParent)
-                    //Send NavigateForward of oSelectView Self - No tiene padres
+                Case (bExist)
+                    Send UserError "Ya existe un archivo con ese nombre."
+                    Function_Return ""
                     Case Break
-
-                Case (NavigateData.eNavigateType = nfFromChild)
-                    Send NavigateClose Self
+            //PDF        
+                Case (not (sMime = "application/pdf"))
+                    Send UserError "Solo se permiten archivos pdf"
+                    Function_Return ""
+                    Case Break  
+            // 100000 m        
+                Case (iBytes > 1000000)
+                    Send UserError "Archivo demasiado pesado"
+                    Function_Return ""
                     Case Break
-
-                Case (NavigateData.eNavigateType = nfFromMain)
-                    Send NavigateClose Self
-                    Case Break
-
-                Case Else // must be nfUndefined
-                    //Send NavigateForward of oSelectView Self - No tiene padres
-
+                    
+                Case Else
+                    Function_Return sPath                  
             Case End
-        End_Procedure
-
-        Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
-            Move True to NavigateData.bReadOnly
-        End_Procedure
-
-    End_Object 
-
+            
+        End_Function
+    End_Object
+    
+    Object oBotonFicheros is a cWebGroup
+        Set psCaption to "Botón para subir fichero"
+        Set piColumnCount  to 12
+        Set piColumnSpan to 12
+        
+        Object oSubirFicheros_Btn is a cWebFileUploadButton
+            Set piColumnSpan to 5
+            Set psCaption to "Subir fichero"
+            Set piColumnIndex to 4
+            Set psAccept to ".pdf"
+            
+            
+            // Called for each file  upload to generate the local patch where the file is stored
+            Function OnFileUpload String sFileName BigInt iBytes String sMime Returns String
+                String sPath sCarpeta
+                Boolean bOk
+                //--------
+                Get ObtainPath sCarpeta to sPath
+                Send Info_Box sPath "Ruta Upload"
+                //---------
+                Forward Get OnFileUpload sFileName iBytes sMime to sPath
+                
+                Move "aBoton" to sCarpeta
+                
+                // Determine local parh based on workspace setting
+                Get ObtainPath sCarpeta to sPath
+                Move (sPath + "\" + sFileName) to sPath
+                
+                File_Exist sPath bOk
+                
+                Case Begin
+                    Case (bOk)
+                        Send UserError "Ya existe un archivo con ese nombre"
+                        Function_Return ""
+                        Case Break
+                    
+                    Case (not(sMime = "application/pdf"))
+                        Send UserError "Solo se permiten archivos PDF"
+                        Function_Return ""
+                        Case Break
+                    
+                    Case (iBytes > 1000000)
+                        Send UserError "Archivo demasiado pesado"
+                        Function_Return ""
+                        Case Break
+                    
+                    Case Else
+                        Function_Return sPath
+                Case End
+                
+            End_Function
+        End_Object        
+    End_Object
+    
     Object oActionGroup is a cWebMenuGroup
-
+        
         Object oSearch is a cWebMenuItem
             Set psCSSClass to "WebPromptMenuItem"
-            Set psCaption to "Search"
-
+            Set psCaption to  "Search"
+            
             Procedure OnClick
                 Send Search of oList
             End_Procedure
-
-        End_Object 
-
+            
+        End_Object
+        
         Object oNewButton is a cWebMenuItem
             Set psCSSClass to "WebClearMenuItem"
-            Set psCaption to "New"
-
+            Set psCaption to  "New"
+            
             WebRegisterPath ntNavigateForward oZoomPosicion
-
+            
             Procedure OnClick
                 Send NavigatePath
             End_Procedure
-
+            
             Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
                 Move True to NavigateData.bNewRecord
             End_Procedure
-
-        End_Object 
-    End_Object 
-
+            
+        End_Object
+    End_Object
+    
     Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
         WebSet pbRender of oNewButton to True
-        WebSet pbRender of oDetailButton to True
-
+        
+        
         Case Begin
             Case (NavigateData.eNavigateType = nfFromParent)
-                // If from parent, this is a constrained drill down
+                //
+                //
+            
                 Case Break
-
+            
             Case (NavigateData.eNavigateType = nfFromChild)
-                // If from child, this is a probably a parent lookup from a Zoom
+                //
                 Case Break
-
+           
             Case (NavigateData.eNavigateType = nfFromMain)
-                // If from main, this is a probably a main-file lookup from a Zoom
-                WebSet pbRender of oDetailButton to False
+                //
+                
                 Case Break
-
-            Case Else // must be nfUndefined
-                // This may be the start of a drilldown query or this may be used for some kind of custom query.
-
+                
+            Case Else //
+                //
+                //
+                
+                
         Case End
-
+        
     End_Procedure
-
-
-End_Object 
+    
+    
+    Function ObtainPath String sDir Returns String
+        String sPath
+        String[] saFolders
+        Integer iCount
+        
+        Get UploadFolder of ghoWebApp False to sPath
+        
+        Move (StrSplitToArray(sPath, "\")) to saFolders
+        Move (SizeOfArray(saFolders)-1) to iCount
+        Move sDir to saFolders[iCount]
+        Move (StrJoinFromArray(saFolders, "\")) to sPath
+        
+        Function_Return sPath
+    End_Function   
+    
+    
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+    
+        String sPath
+    
+        Get ObtainPath "aBlanco" to sPath
+        Send RegisterUploadFolder of ghoWebResourceManager sPath
+    
+        Get ObtainPath "aNegro" to sPath
+        Send RegisterUploadFolder of ghoWebResourceManager sPath
+    
+        Get ObtainPath "aBoton" to sPath
+        Send RegisterUploadFolder of ghoWebResourceManager sPath
+    End_Procedure
+End_Object
