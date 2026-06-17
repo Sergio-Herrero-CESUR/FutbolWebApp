@@ -1,4 +1,5 @@
-﻿// ZoomJugador
+﻿// C:\DataFlex Projects\FutbolWebApp\AppSrc\ZoomJugador.wo
+// ZoomJugador
 //
 
 Use cWebView.pkg
@@ -10,100 +11,142 @@ Use cWebForm.pkg
 Use cligaDataDictionary.dd
 Use cequipoDataDictionary.dd
 Use cjugadorDataDictionary.dd
+Use cposicionDataDictionary.dd
+Use cjugadorposicionDataDictionary.dd
+Use cWebGroup.pkg
 
 Object oZoomJugador is a cWebView
     Set piColumnCount to 12
-    Set psCaption to "Jugador"
+    Set psCaption to "ZoomJugador"
     Set peWebViewStyle to wvsDrilldown
     Set peViewType to vtZoom
     Set pbShowCaption to False
     Set Verify_Save_Msg to 0
     Set piMaxWidth to 1024
 
+    
     Object oliga_DD is a cligaDataDictionary
     End_Object 
-
+        
     Object oequipo_DD is a cequipoDataDictionary
-        Set DDO_Server to oliga_DD
+        Set DDO_Server To oliga_DD
     End_Object 
 
     Object ojugador_DD is a cjugadorDataDictionary
-        Set DDO_Server to oequipo_DD
+        Set DDO_Server To oequipo_DD
     End_Object 
-
-    Set Main_DD to ojugador_DD
-    Set Server  to ojugador_DD
+    
+    Object oposicion_DD is a cposicionDataDictionary
+    End_Object
+   
+    Set Main_DD To ojugador_DD
+    Set Server  To ojugador_DD
 
 
     Object oWebMainPanel is a cWebPanel
         Set piColumnCount to 12
-
-        // C:\DataFlex Projects\FutbolWebApp\AppSrc\ZoomJugador.wo
         WebSetResponsive piColumnCount rmMobile to 4
 
+         Object oDespedirButton is a cWebButton
+            Set piColumnSpan to 2
+            Set piColumnIndex to 0
+            Set psCaption to "Despedir"
+            
+            Procedure OnClick
+                Send Clear of oequipo_DD
+            End_Procedure
+            
+         End_Object   
+         
         Object ojugadorNombre is a cWebForm
             Entry_Item jugador.Nombre
-            Set piColumnSpan to 4
+            Set piColumnSpan to 6
             Set piColumnIndex to 0
             Set peLabelPosition to lpTop
-            Set psLabel to "Nombre"
+            Set psLabel to "Nombre del Nuevo jugador"
         End_Object 
 
         Object ojugadorApellido is a cWebForm
             Entry_Item jugador.Apellido
-            Set piColumnSpan to 4
-            Set piColumnIndex to 4
+            Set piColumnSpan to 6
+            Set piColumnIndex to 6
             Set peLabelPosition to lpTop
-            Set psLabel to "Apellido"
+            Set psLabel to "Apellido del Nuevo jugador"
         End_Object 
 
-        Object oequipoNombre is a cWebForm
-            Entry_Item equipo.Nombre
-            Set piColumnSpan to 4
+        Object oInfoGroup is a cWebGroup
+            Set piColumnCount to 12
+            Set piColumnSpan to 12
+            Set psCaption to "Información del Jugador"
+            
+        Object ojugadorNacionalidad is a cWebForm
+            Entry_Item jugador.Nacionalidad
+            Set piColumnSpan to 6
             Set piColumnIndex to 0
             Set peLabelPosition to lpTop
-            Set psLabel to "Equipo"
+            Set psLabel to "Su Nacionalidad"
+        End_Object 
+                
+        Object oequipoNombre is a cWebForm
+            Entry_Item equipo.Nombre
+            Set piColumnSpan to 5
+            Set piColumnIndex to 6
+            Set peLabelPosition to lpTop
+            Set psLabel to "Nombre del equipo dónde juega"
             Set pbPromptButton to True
-
+            
+            //Va a SelectEquipo pq el campo equipoNombre es un campo de la tabla Equipo
             WebRegisterPath ntNavigateForward oSelectEquipo
 
             Procedure OnPrompt
                 Send NavigatePath
             End_Procedure
-
         End_Object 
 
-        Object ojugadorNacionalidad is a cWebForm
-            Entry_Item jugador.Nacionalidad
-            Set piColumnSpan to 4
-            Set piColumnIndex to 4
-            Set peLabelPosition to lpTop
-            Set psLabel to "Nacionalidad"
-        End_Object
-
-        Object oButtonFire is a cWebButton
-            Set piColumnSpan to 4
+        Object oligaNombre is a cWebForm
+            Entry_Item liga.Nombre
+            Set piColumnSpan to 6
             Set piColumnIndex to 0
-            Set psCaption to "Despedir"
-            Procedure onClick
-                Forward Send OnClick
-                Send Request_ClearBindingTable of oequipoNombre
-            End_Procedure
+            Set peLabelPosition to lpTop
+            Set psLabel to "¿A qué liga pertenece el equipo donde juega?"
+            Set pbPromptButton to True
             
-        End_Object
+            //LigaNombre es un campo de la tabla Liga
+            WebRegisterPath ntNavigateForward oSelectLiga
 
-        Object oPosicionButton is a cWebButton
-            Set piColumnSpan to 4
+            Procedure OnPrompt
+                Send NavigatePath
+            End_Procedure
+        End_Object 
+
+        Object oligaPais is a cWebForm
+            Entry_Item liga.Pais
+            Set piColumnSpan to 5
+            Set piColumnIndex to 6
+            Set peLabelPosition to lpTop
+            Set psLabel to "¿A qué país pertenece esa Liga?"
+            Set pbPromptButton to True
+
+            //LigaPais es un campo de la tabla Liga
+            WebRegisterPath ntNavigateForward oSelectLiga
+
+            Procedure OnPrompt
+                Send NavigatePath
+            End_Procedure
+        End_Object 
+                  
+            
+         Object oPosicionButton is a cWebButton
+            Set piColumnSpan to 2
             Set psCaption to "Posición"
-            Set piColumnIndex to 4
             
-            WebRegisterPath ntNavigateForwardCustom oSelectPosicion
-            
+            WebRegisterPath ntNavigateForward oSelectJugadorPosicion
             Procedure OnClick
                 Send NavigatePath
             End_Procedure
-        End_Object
-        
+         End_Object
+
+        End_Object                    
     End_Object 
 
     Object oActionGroup is a cWebMenuGroup
@@ -114,42 +157,6 @@ Object oZoomJugador is a cWebView
 
             Procedure OnClick
                 Send Request_Save
-            End_Procedure
-
-            Procedure AllowServerAction Boolean  ByRef bAllow String sMethodName Handle hoMessage Boolean bIsFunction
-                Forward Send AllowServerAction (&bAllow) sMethodName hoMessage bIsFunction
-            End_Procedure
-
-            Procedure Destroy_Object
-                Forward Send Destroy_Object
-            End_Procedure
-
-            Procedure OnCallEnd
-                Forward Send OnCallEnd
-            End_Procedure
-
-            Procedure OnChangeRights
-                Forward Send OnChangeRights
-            End_Procedure
-
-            Procedure OnCloseModalDialog Handle hoModalDialog
-                Forward Send OnCloseModalDialog hoModalDialog
-            End_Procedure
-
-            Procedure OnGetNavigateBackData tWebNavigateData  ByRef NavigateData Handle hoBackToView
-                Forward Send OnGetNavigateBackData (&NavigateData) hoBackToView
-            End_Procedure
-
-            Procedure OnGetNavigateForwardData tWebNavigateData  ByRef NavigateData Handle hoToView
-                Forward Send OnGetNavigateForwardData (&NavigateData) hoToView
-            End_Procedure
-
-            Procedure OnLoad
-                Forward Send OnLoad
-            End_Procedure
-
-            Procedure OnNavigateBack Handle hoCallback tWebNavigateData NavigateData
-                Forward Send OnNavigateBack hoCallback NavigateData
             End_Procedure
 
         End_Object 
@@ -240,6 +247,15 @@ Object oZoomJugador is a cWebView
         Case End
 
         Send SetActionButtons
+        
+         If (HasRecord(Server(Self))) Begin
+            Send SetHeaderCaption   ("Jugador:"*jugador.Nombre)
+            Send SetBreadcrumbCaption jugador.Nombre
+        End
+        Else Begin
+            Send SetHeaderCaption   "Nuevo jugador"
+            Send SetBreadcrumbCaption "Nuevo"
+        End 
 
     End_Procedure
 

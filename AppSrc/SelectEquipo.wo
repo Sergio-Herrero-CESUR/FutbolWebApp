@@ -1,6 +1,4 @@
 ﻿// C:\DataFlex Projects\FutbolWebApp\AppSrc\SelectEquipo.wo
-// SelectEquipo
-//
 
 Use cWebView.pkg
 Use cWebList.pkg
@@ -15,7 +13,7 @@ Use cequipoDataDictionary.dd
 Use centrenadorDataDictionary.dd
 
 Object oSelectEquipo is a cWebView
-    Set psCaption to "Equipo"
+    Set psCaption to "SelectEquipo"
     Set peWebViewStyle to wvsDrilldown
     Set peViewType to vtSelect
     Set piColumnCount to 12
@@ -24,69 +22,77 @@ Object oSelectEquipo is a cWebView
 
     Object oliga_DD is a cligaDataDictionary
     End_Object 
-    
-    Object oequipo_DD is a cequipoDataDictionary
-        Set DDO_Server to oliga_DD
-    End_Object
 
-    Set Main_DD to oequipo_DD
-    Set Server  to oequipo_DD
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server To oliga_DD
+    End_Object 
+
+    Object oentrenador_DD is a centrenadorDataDictionary
+        Set DDO_Server to oEquipo_DD
+    End_Object
+    
+    Set Main_DD To oequipo_DD
+    Set Server  To oequipo_DD
+
 
     Object oList is a cWebList
         Set piColumnSpan to 0
         Set psCSSClass to "MobileList"
-        Set pbServerOnRowClick to True
+        Set pbServerOnRowClick to True //Activado - Cuando clico en una fila de la lista pasa algo. Mirar Procedure OnRowClick
         Set pbFillHeight to True
-        Set pbShowHeader to True
+        Set pbShowHeader to False
         Set piSortColumn to 0
 
         Object oequipoNombre is a cWebColumn
             Entry_Item equipo.Nombre
-            Set psCaption to "Nombre del equipo"
-            Set piWidth to 700
-        End_Object
-
-        Object oligaNombre is a cWebColumn
-            Entry_Item liga.Nombre
-            Set psCaption to "Nombre de la liga"
-            Set piWidth to 700
+            Set psCaption to "equipo.Nombre"
+            Set piWidth to 1491
         End_Object 
 
-        Object oDetailButton is a cWebColumnButton
-            Set psCaption to ""
+        Object oligaID is a cWebColumn
+            Entry_Item liga.ID
+            Set psCaption to "equipo.LigaID"
+            Set piWidth to 124
+        End_Object 
+        
+        //InvokingObject
+        Object oDetailButton is a cWebColumnButton 
+            Set psCaption to "btn"
             Set piWidth to 45
             Set pbFixedWidth to True
             Set pbResizable to False
             Set piListRowSpan to 1
             Set psBtnCssClass to "WebButtonIcon WebIcon_Info"
             Set peAlign to alignRight
-
+            
+            //Navegación con relación
             WebRegisterPath ntNavigateForward oZoomEquipo
 
             Procedure OnClick
                 Send NavigatePath
             End_Procedure
-
+            //Este evento se produce dentro del InvokingObject
             Procedure OnGetNavigateForwardData tWebNavigateData ByRef NavigateData Handle hoToView
                 Move True to NavigateData.bReadOnly
             End_Procedure
 
         End_Object 
+        
+        //es selectLiga pq es su padre, es decir Equipo depende de Liga
+        WebRegisterPath ntNavigateForward oSelectLiga 
 
-// ToDo: Fill in the from-parent child Select view object name for navigate forward
-//        WebRegisterPath ntNavigateForward oSelectView
-
-        Procedure OnRowClick String sRowId
-            tWebNavigateData NavigateData
+        //Evento de la lista WebList - Clicar en una fila de la lista
+        Procedure OnRowClick String sRowId 
+            /*Cuando clico en la fila de la lista obtengo la informacion de como he llegado yo aqui. Analogia: he venido desde Madrid, en tren 
+            y tengo una reserva en un hotel, con el Get saco toda esta información */
+            tWebNavigateData NavigateData 
             Get GetNavigateData to NavigateData
-
+            //Dependiendo del tipo de relación entre los DD, hare una cosa u otra
             Case Begin
                 Case (NavigateData.eNavigateType = nfFromParent)
-// ToDo: Fill in the from-parent child Select view object name for navigate forward
-Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not yet defined"
-//                    Send NavigateForward of oSelectView Self
+                    Send NavigateForward of oSelectLiga Self //Liga(Padre)
                     Case Break
-
+                //Si la navegacion viene de un hijo - Cierra la vista
                 Case (NavigateData.eNavigateType = nfFromChild)
                     Send NavigateClose Self
                     Case Break
@@ -96,9 +102,7 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
                     Case Break
 
                 Case Else // must be nfUndefined
-// ToDo: Fill in the from-parent child Select view object name for navigate forward
-Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not yet defined"
-//                    Send NavigateForward of oSelectView Self
+                    Send NavigateForward of oSelectLiga Self //Liga(Padre)
 
             Case End
         End_Procedure
@@ -141,7 +145,7 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
     Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
         WebSet pbRender of oNewButton to True
         WebSet pbRender of oDetailButton to True
-
+       
         Case Begin
             Case (NavigateData.eNavigateType = nfFromParent)
                 // If from parent, this is a constrained drill down
@@ -149,6 +153,7 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
 
             Case (NavigateData.eNavigateType = nfFromChild)
                 // If from child, this is a probably a parent lookup from a Zoom
+               
                 Case Break
 
             Case (NavigateData.eNavigateType = nfFromMain)
@@ -157,6 +162,8 @@ Error DFERR_PROGRAM "NavigateForward to this from-parent child Select view not y
                 Case Break
 
             Case Else // must be nfUndefined
+                
+             
                 // This may be the start of a drilldown query or this may be used for some kind of custom query.
 
         Case End

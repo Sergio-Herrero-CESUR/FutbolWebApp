@@ -101,6 +101,17 @@
 			</DDClasses>
 		</Table>
 		<Table>
+			<tableNumber>10</tableNumber>
+			<tableName>posicionestotales</tableName>
+			<DDClasses>
+				<DDClass>
+					<className>cposicionestotalesDataDictionary</className>
+					<classFile>cposicionestotalesDataDictionary.dd</classFile>
+					<preferred>true</preferred>
+				</DDClass>
+			</DDClasses>
+		</Table>
+		<Table>
 			<tableNumber>263</tableNumber>
 			<tableName>WebAppSession</tableName>
 			<DDClasses>

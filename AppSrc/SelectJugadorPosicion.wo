@@ -1,0 +1,308 @@
+﻿Use cWebView.pkg
+Use cWebPanel.pkg
+Use cWebList.pkg
+Use cWebButton.pkg
+Use cWebMenuGroup.pkg
+Use cWebMenuItem.pkg
+Use cWebColumn.pkg
+
+Use cligaDataDictionary.dd
+Use cequipoDataDictionary.dd
+Use cjugadorDataDictionary.dd
+Use cposicionDataDictionary.dd
+Use cjugadorposicionDataDictionary.dd
+
+Object oSelectJugadorPosicion is a cWebView
+    Set psCaption to "Sus posiciones"
+    Set peWebViewStyle to wvsDrilldown
+    Set peViewType to vtSelect
+    Set piColumnCount to 12
+    Set pbShowCaption to True
+    Set piMaxWidth to 980
+
+    Object oliga_DD is a cligaDataDictionary
+    End_Object
+
+    Object oequipo_DD is a cequipoDataDictionary
+        Set DDO_Server to oliga_DD
+    End_Object
+
+    Object ojugador_DD is a cjugadorDataDictionary
+        Set DDO_Server to oequipo_DD
+    End_Object
+
+    Object oposicionDisponible_DD is a cposicionDataDictionary
+    End_Object
+
+    Object oposicionJugador_DD is a cposicionDataDictionary
+    End_Object
+
+    Object oposicionSave_DD is a cposicionDataDictionary
+    End_Object
+
+    Object ojugadorposicion_DD is a cjugadorposicionDataDictionary
+        Set DDO_Server to ojugador_DD
+        Set DDO_Server to oposicionJugador_DD
+        Set Constrain_File to jugador.File_Number
+    End_Object
+
+    Object ojugadorposicionSave_DD is a cjugadorposicionDataDictionary
+        Set DDO_Server to ojugador_DD
+        Set DDO_Server to oposicionSave_DD
+    End_Object
+
+    Set Main_DD to ojugadorposicion_DD
+    Set Server  to ojugadorposicion_DD
+
+    Object oWebMainPanel is a cWebPanel
+        Set piColumnCount to 12
+        WebSetResponsive piColumnCount rmMobile to 4
+
+        Object oPosicionesDisponiblesList is a cWebList
+            Set psCaption to "Posiciones"
+            Set Server to oposicionDisponible_DD
+            Set piColumnSpan to 4
+            Set piColumnIndex to 0
+            Set pbFillHeight to False
+            Set pbScroll to True
+            Set piMinHeight to 520
+            Set pbServerOnShow to True
+            Set pbServerOnRowClick to True
+            Set pbShowHeader to True
+            Set piSortColumn to 0
+
+            Procedure OnShow
+                Forward Send OnShow
+                Send RefreshListFromDD
+            End_Procedure
+
+            Object oposicionDisponibleNombreCol is a cWebColumn
+                Entry_Item posicion.Nombre
+                Set psCaption to "Posiciones"
+                Set piWidth to 450
+            End_Object
+        End_Object
+
+        Object oAgregarButton is a cWebButton
+            Set psCaption to "->"
+            Set piColumnIndex to 4
+
+            Procedure OnClick
+                Send AgregarPosicionSeleccionada
+            End_Procedure
+        End_Object
+
+        Object oQuitarButton is a cWebButton
+            Set psCaption to "<-"
+            Set piColumnIndex to 6
+
+            Procedure OnClick
+                Send QuitarPosicionSeleccionada
+            End_Procedure
+        End_Object
+
+        Object oPosicionesJugadorList is a cWebList
+            Set psCaption to "Posiciones del jugador"
+            Set Server to ojugadorposicion_DD
+            Set piColumnSpan to 4
+            Set piColumnIndex to 7
+            Set pbFillHeight to False
+            Set pbScroll to True
+            Set piMinHeight to 520
+            Set pbServerOnShow to True
+            Set pbServerOnRowClick to True
+            Set pbShowHeader to True
+            Set piSortColumn to 0
+
+            Procedure OnShow
+                Forward Send OnShow
+                Send RefreshListFromDD
+            End_Procedure
+
+            Object oposicionJugadorNombreCol is a cWebColumn
+                Entry_Item posicion.Nombre
+                Set psCaption to "Posiciones del jugador"
+                Set piWidth to 450
+            End_Object
+        End_Object
+    End_Object
+
+    Object oActionGroup is a cWebMenuGroup
+        Set psGroupName to "MainActions"
+
+        Object oBackBtn is a cWebMenuItem
+            Set psCaption to "Back"
+            Set peActionDisplay to adBoth
+            Set psImage to "Images/back-green.svg"
+
+            Procedure OnClick
+                Send NavigateCancel Self
+            End_Procedure
+        End_Object
+    End_Object
+    
+    
+    Object oDragAndDrop is a cWebDragDropHelper
+        
+        Send RegisterDragSource oPosicionesDisponiblesList C_WebDragListRow
+        Send RegisterDragSource oPosicionesJugadorList C_WebDragListRow
+        
+        Send RegisterDropTarget oPosicionesDisponiblesList C_WebDropListRow
+        Send RegisterDropTarget oPosicionesJugadorList C_WebDropListRow
+        
+        Procedure OnDrop Handle hoDragSource Handle hoDropTarget WebDropPosition eDropPosition
+            Forward Send OnDrop hoDragSource hoDropTarget eDropPosition
+            
+            RowID riCurRi
+            tWebListDragData listDragData
+            String sRowId
+            
+            If (hoDragSource = hoDropTarget) Begin
+                Send ShowInfoBox "La has dejado en la misma lista"
+            End
+            Else Begin
+                Get DragData of hoDragSource to listDragData
+                Move listDragData.data.sRowId to sRowId
+                
+                If (hoDragSource = oPosicionesDisponiblesList) Begin
+                    Send AgregarPosicion sRowId
+                End
+                
+                If (hoDragSource = oPosicionesJugadorList) Begin
+                    Send QuitarPosicion sRowId
+                End
+            End
+        End_Procedure             
+    End_Object
+
+    Procedure RefrescarListasJugador RowID riJugador
+        Boolean bOk
+
+        If (not(IsNullRowID(riJugador))) Begin
+            Get FindByRowIdEx of ojugador_DD jugador.File_Number riJugador to bOk
+        End
+
+        Send Rebuild_Constraints of ojugadorposicion_DD
+        Send RefreshListFromDD of oPosicionesDisponiblesList
+        Send RefreshListFromDD of oPosicionesJugadorList
+    End_Procedure
+
+    Procedure RefrescarListas
+        RowID riJugador
+
+        Get CurrentRowId of ojugador_DD to riJugador
+        Send RefrescarListasJugador riJugador
+    End_Procedure
+
+    Procedure AgregarPosicionSeleccionada
+        String sRowId
+
+        WebGet psCurrentRowId of oPosicionesDisponiblesList to sRowId
+        Send AgregarPosicion sRowId
+    End_Procedure
+
+    Procedure QuitarPosicionSeleccionada
+        String sRowId
+
+        WebGet psCurrentRowId of oPosicionesJugadorList to sRowId
+        Send QuitarPosicion sRowId
+    End_Procedure
+
+    Procedure AgregarPosicion String sRowId
+        
+        Integer iJugadorId iPosicionId
+        Boolean bFound bOk bChanged
+        RowID riJugador riPosicion
+        
+        Get Field_Current_Value of ojugador_DD Field jugador.ID to iJugadorId
+        Get CurrentRowId of ojugador_DD to riJugador
+        Move (DeserializeRowID(sRowId)) to riPosicion
+    
+        If (iJugadorId = 0 or IsNullRowID(riJugador)) Begin
+            Send UserError "Guarda o selecciona el jugador antes de asignar posiciones." "Posiciones"
+            Procedure_Return
+        End
+    
+        If (IsNullRowID(riPosicion)) Begin
+            Send UserError "Selecciona una posicion antes de asignarla." "Posiciones"
+            Procedure_Return
+        End
+    
+        Get ChangeCurrentRow of oPosicionesDisponiblesList "row" sRowId to bChanged
+    
+        Get FindByRowIdEx of ojugador_DD jugador.File_Number riJugador to bOk
+        Get FindByRowIdEx of oposicionSave_DD posicion.File_Number riPosicion to bOk
+        If (not(bOk)) Begin
+            Send UserError "No se encontro la posicion seleccionada en el sistema." "Posiciones"
+            Procedure_Return
+        End
+    
+        Get Field_Current_Value of oposicionSave_DD Field posicion.ID to iPosicionId
+    
+        Send Clear of ojugadorposicionSave_DD
+        
+        Send FindByRowId of ojugadorposicionSave_DD jugador.File_Number riJugador
+        Send FindByRowId of ojugadorposicionSave_DD posicion.File_Number riPosicion
+        
+        Send Find of ojugadorposicionSave_DD EQ Index.2
+        Move (Found) to bFound
+    
+        If (bFound) Begin
+            Send UserError "El jugador ya tiene asignada esa posicion." "Posiciones"
+            Send Clear of ojugadorposicionSave_DD
+            Send RefrescarListasJugador riJugador
+            Procedure_Return
+        End
+    
+        Send Clear of ojugadorposicionSave_DD
+    
+        Send FindByRowId of ojugadorposicionSave_DD jugador.File_Number riJugador
+        Send FindByRowId of ojugadorposicionSave_DD posicion.File_Number riPosicion
+    
+        Set Field_Changed_Value of ojugadorposicionSave_DD Field jugadorposicion.JugadorID to iJugadorId
+        Set Field_Changed_Value of ojugadorposicionSave_DD Field jugadorposicion.PosicionID to iPosicionId
+    
+        Send Request_Save of ojugadorposicionSave_DD
+        
+        Send Clear of ojugadorposicionSave_DD
+        Send RefrescarListasJugador riJugador
+    End_Procedure
+
+    Procedure QuitarPosicion String sRowId
+        Boolean bChanged
+        RowID riJugador riJugadorPosicion
+
+        Get CurrentRowId of ojugador_DD to riJugador
+        Move (DeserializeRowID(sRowId)) to riJugadorPosicion
+        If (IsNullRowID(riJugadorPosicion)) Begin
+            Send UserError "Selecciona una posicion antes de quitarla." "Posiciones"
+            Procedure_Return
+        End
+
+        Get FindByRowIdEx of ojugadorposicionSave_DD jugadorposicion.File_Number riJugadorPosicion to bChanged
+        If (not(bChanged)) Begin
+            Send UserError "No se pudo seleccionar la posicion para quitarla." "Posiciones"
+            Procedure_Return
+        End
+
+        Send Request_Delete of ojugadorposicionSave_DD
+        Send Clear of ojugadorposicionSave_DD
+        Send RefrescarListasJugador riJugador
+    End_Procedure
+
+    Procedure OnNavigateForward tWebNavigateData NavigateData Integer hoInvokingView Integer hoInvokingObject
+        String sNombre
+
+        Move (Trim(jugador.Nombre + " " + jugador.Apellido)) to sNombre
+        Send SetBreadcrumbCaption "Sus posiciones"
+        If (sNombre <> "") Begin
+            Send SetHeaderCaption ("Posiciones de: " + sNombre)
+        End
+        Else Begin
+            Send SetHeaderCaption "Posiciones del jugador"
+        End
+
+        Send RefrescarListas
+    End_Procedure
+
+End_Object

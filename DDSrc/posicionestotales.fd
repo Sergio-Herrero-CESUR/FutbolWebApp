@@ -1,0 +1,4 @@
+#REPLACE FILE10 posicionestotales
+#REPLACE posicionestotales.File_Number |CI10
+#REPLACE posicionestotales.ID |FN10,1
+#REPLACE posicionestotales.Nombre |FS10,2

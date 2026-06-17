@@ -11,15 +11,17 @@ Class centrenadorDataDictionary is a DataDictionary
         Set Main_File to entrenador.File_Number
 
         Set Add_Server_File to equipo.File_Number
-       // Set ParentNullAllowed equipo.File_Number to True
+        Set ParentNullAllowed  equipo.File_Number to True
 
         Set Add_Client_File to hijoentrenador.File_Number
-        
 
         Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
         Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
         Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+        
+        Set Key_Field_State Field entrenador.ID to True
+        
 
     End_Procedure
     
